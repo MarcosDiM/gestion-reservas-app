@@ -1,13 +1,103 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Complejo {
+  id               Int                @id @default(autoincrement())
+  nombre           String
+  unidadReservable UnidadReservable[]
+}
+
+model UnidadReservable {
+  id         Int        @id @default(autoincrement())
+  nombre     String
+  tipo       String
+  estado     String
+  capacidad  Int
+  complejoId Int
+  complejo   Complejo   @relation(fields: [complejoId], references: [id])
+  reservas   Reserva[]
+}
+
+model Reserva {
+  id                    Int              @id @default(autoincrement())
+  fechaInicio           DateTime
+  fechaSalida           DateTime
+  cantidadPersonas      Int
+  estado                String
+  plataformaProveniente String
+  aclaracion            String
+  tarifa                Decimal
+  fechaCreacion         DateTime
+  unidadReservableId    Int
+  unidadReservable      UnidadReservable @relation(fields: [unidadReservableId], references: [id])
+  huespedes             ReservaHuesped[]
+  pagos                 Pago[]
+}
+
+model Huesped {
+  id          Int              @id @default(autoincrement())
+  nombre      String
+  apellido    String
+  procedencia String
+  mail        String
+  telefono    String
+  descripcion String
+  dni         String?
+  reservas    ReservaHuesped[]
+}
+
+model ReservaHuesped {
+  id        Int     @id @default(autoincrement())
+  esTitular Boolean
+  reservaId Int
+  huespedId Int
+  reserva   Reserva @relation(fields: [reservaId], references: [id])
+  huesped   Huesped @relation(fields: [huespedId], references: [id])
+}
+
+model Usuario {
+  id           Int    @id @default(autoincrement())
+  nombre       String
+  mailOUsuario String @unique
+  contrasena   String
+  rol          String
+}
+
+model Pago {
+  id           Int           @id @default(autoincrement())
+  tipoPago     TipoPago
+  monto        Decimal
+  fecha        DateTime
+  reservaId    Int
+  reserva      Reserva       @relation(fields: [reservaId], references: [id])
+  comprobantes Comprobante[]
+}
+
+model Comprobante {
+  id        Int      @id @default(autoincrement())
+  tipoPago  TipoPago
+  archivo   String
+  monto     Decimal
+  moneda    Moneda
+  pagoId    Int
+  pago      Pago     @relation(fields: [pagoId], references: [id])
+}
+
+enum TipoPago {
+  SEÑA
+  PAGO_FINAL
+  REEMBOLSO
+}
+
+enum Moneda {
+  ARS
+  USD
+  EUR
+  BRL
+  PESO
 }
