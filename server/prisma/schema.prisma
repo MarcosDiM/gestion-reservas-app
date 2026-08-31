@@ -63,9 +63,9 @@ model ReservaHuesped {
 model Usuario {
   id           Int    @id @default(autoincrement())
   nombre       String
-  mailOUsuario String @unique
+  usuario      String @unique
   contrasena   String
-  rol          String
+  rol          Rol
 }
 
 model Pago {
@@ -100,4 +100,9 @@ enum Moneda {
   EUR
   BRL
   PESO
+}
+
+enum Rol {
+  ADMIN
+  VIEW
 }
