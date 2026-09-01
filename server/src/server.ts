@@ -4,11 +4,6 @@ const complejoService = new ComplejoService();
 
 (async () => {
     try {
-        // 1. Esperar a que se cree el registro en la base de datos
-        await complejoService.crearComplejo({
-            nombre: "EL Mirador",
-        });
-
         // 2. Obtenerlo una vez creado
         const complejo = await complejoService.obtenerComplejoPorId(1);
 
