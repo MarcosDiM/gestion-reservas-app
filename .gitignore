@@ -27,7 +27,7 @@ server/.env
 server/generated/prisma
 server/diagrama_uml_reservas_complejo.html
 server/dbml-error.log
-
+server/prisma/dbml
 
 #Configuración de la carpeta Client
 #Logs  
