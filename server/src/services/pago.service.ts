@@ -4,13 +4,14 @@ import type { Prisma } from "@prisma/client";
 export class PagoService {
     async obtenerPagos() {
         return await prisma.pago.findMany({
+            where: { eliminado: false },
             include: { reserva: true, comprobantes: true },
         });
     }
 
     async obtenerPagoPorId(id: number) {
-        return await prisma.pago.findUnique({
-            where: { id },
+        return await prisma.pago.findFirst({
+            where: { id, eliminado: false },
             include: { reserva: true, comprobantes: true },
         });
     }
@@ -24,6 +25,6 @@ export class PagoService {
     }
 
     async eliminarPago(id: number) {
-        return await prisma.pago.delete({ where: { id } });
+        return await prisma.pago.update({ where: { id }, data: { eliminado: true } });
     }
 }

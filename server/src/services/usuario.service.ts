@@ -3,11 +3,11 @@ import type { Prisma } from "@prisma/client";
 
 export class UsuarioService {
     async obtenerUsuarios() {
-        return await prisma.usuario.findMany();
+        return await prisma.usuario.findMany({ where: { eliminado: false } });
     }
 
     async obtenerUsuarioPorId(id: number) {
-        return await prisma.usuario.findUnique({ where: { id } });
+        return await prisma.usuario.findFirst({ where: { id, eliminado: false } });
     }
 
     async crearUsuario(data: Prisma.UsuarioCreateInput) {
@@ -19,6 +19,6 @@ export class UsuarioService {
     }
 
     async eliminarUsuario(id: number) {
-        return await prisma.usuario.delete({ where: { id } });
+        return await prisma.usuario.update({ where: { id }, data: { eliminado: true } });
     }
 }

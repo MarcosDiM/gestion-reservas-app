@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "docker compose -f ../docker-compose.yml up -d --wait && tsx watch src/server.ts",
     "generate": "prisma generate",
     "build": "tsc",
     "start": "node dist/server.js",

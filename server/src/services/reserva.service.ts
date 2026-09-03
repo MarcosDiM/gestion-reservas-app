@@ -4,13 +4,14 @@ import type { Prisma } from "@prisma/client";
 export class ReservaService {
     async obtenerReservas() {
         return await prisma.reserva.findMany({
+            where: { eliminado: false },
             include: { unidadReservable: true, huespedes: true, pagos: true },
         });
     }
 
     async obtenerReservaPorId(id: number) {
-        return await prisma.reserva.findUnique({
-            where: { id },
+        return await prisma.reserva.findFirst({
+            where: { id, eliminado: false },
             include: { unidadReservable: true, huespedes: true, pagos: true },
         });
     }
@@ -24,6 +25,6 @@ export class ReservaService {
     }
 
     async eliminarReserva(id: number) {
-        return await prisma.reserva.delete({ where: { id } });
+        return await prisma.reserva.update({ where: { id }, data: { eliminado: true } });
     }
 }

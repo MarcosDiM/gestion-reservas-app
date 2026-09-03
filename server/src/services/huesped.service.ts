@@ -12,12 +12,12 @@ export interface HuespedInput {
 
 export class HuespedService {
     async obtenerHuespedes() {
-        return await prisma.huesped.findMany();
+        return await prisma.huesped.findMany({ where: { eliminado: false } });
     }
 
     async obtenerHuespedPorId(id: number) {
-        return await prisma.huesped.findUnique({
-            where: { id },
+        return await prisma.huesped.findFirst({
+            where: { id, eliminado: false },
             include: { reservas: true }, 
         });
     }
@@ -36,8 +36,9 @@ export class HuespedService {
     }
 
     async eliminarHuesped(id: number) {
-        return await prisma.huesped.delete({
+        return await prisma.huesped.update({
             where: { id },
+            data: { eliminado: true },
         });
     }
 }

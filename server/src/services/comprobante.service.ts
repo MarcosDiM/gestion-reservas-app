@@ -4,13 +4,14 @@ import type { Prisma } from "@prisma/client";
 export class ComprobanteService {
     async obtenerComprobantes() {
         return await prisma.comprobante.findMany({
+            where: { eliminado: false },
             include: { pago: true },
         });
     }
 
     async obtenerComprobantePorId(id: number) {
-        return await prisma.comprobante.findUnique({
-            where: { id },
+        return await prisma.comprobante.findFirst({
+            where: { id, eliminado: false },
             include: { pago: true },
         });
     }
@@ -24,6 +25,6 @@ export class ComprobanteService {
     }
 
     async eliminarComprobante(id: number) {
-        return await prisma.comprobante.delete({ where: { id } });
+        return await prisma.comprobante.update({ where: { id }, data: { eliminado: true } });
     }
 }

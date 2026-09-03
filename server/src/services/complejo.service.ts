@@ -5,13 +5,14 @@ import prisma from "../config/prisma.js";
 export class ComplejoService {
     async obtenerComplejos() {
         return await prisma.complejo.findMany({
+            where: { eliminado: false },
             include: { unidadReservable: true },
         });
     }
 
     async obtenerComplejoPorId(id: number) {
-        return await prisma.complejo.findUnique({
-            where: { id },
+        return await prisma.complejo.findFirst({
+            where: { id, eliminado: false },
             include: { unidadReservable: true },
         });
     }
@@ -25,6 +26,6 @@ export class ComplejoService {
     }
 
     async eliminarComplejo(id: number) {
-        return await prisma.complejo.delete({ where: { id } });
+        return await prisma.complejo.update({ where: { id }, data: { eliminado: true } });
     }
 }

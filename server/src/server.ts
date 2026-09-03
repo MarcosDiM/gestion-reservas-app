@@ -1,14 +1,20 @@
-import { ComplejoService } from "./services/complejo.service.js";
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import seedRoutes from "./routes/seed.routes.js";
 
-const complejoService = new ComplejoService();
+const app = express();
+const PORT = Number(process.env.PORT ?? 4000);
 
-(async () => {
-    try {
-        // 2. Obtenerlo una vez creado
-        const complejo = await complejoService.obtenerComplejoPorId(1);
+app.use(cors());
+app.use(express.json());
 
-        console.log("Complejo obtenido:", complejo);
-    } catch (error) {
-        console.error("Error al operar con el complejo:", error);
-    }
-})();
+app.get("/health", (_req, res) => {
+    res.status(200).json({ ok: true, message: "Servidor activo" });
+});
+
+app.use("/api", seedRoutes);
+
+app.listen(PORT, () => {
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+});

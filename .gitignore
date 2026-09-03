@@ -28,6 +28,7 @@ server/generated/prisma
 server/diagrama_uml_reservas_complejo.html
 server/dbml-error.log
 server/prisma/dbml
+server/prisma/migrations
 
 #Configuración de la carpeta Client
 #Logs  
@@ -54,3 +55,7 @@ client/.ntvs*
 client/.njsproj
 client/.sln
 client/*.sw?
+
+docker-compose.yml
+server/src/routes/seed.routes.ts
+server/src/seed.ts

@@ -12,31 +12,51 @@ generator dbml {
 }
 
 model Usuario {
-  id           Int    @id @default(autoincrement())
-  nombre       String
-  usuario      String @unique
-  contrasena   String
-  rol          Rol
-  complejos    Complejo[]
+  id            Int    @id @default(autoincrement())
+  nombre        String
+  usuario       String @unique
+  contrasena    String
+  eliminado     Boolean @default(false)
+  complejos     UsuarioComplejo[]
+  fechaCreacion DateTime
 }
 
 model Complejo {
   id               Int                @id @default(autoincrement())
   nombre           String
-  usuarioId        Int
-  usuario          Usuario            @relation(fields: [usuarioId], references: [id])
+  eliminado        Boolean          @default(false)
+  usuarios         UsuarioComplejo[]
   unidadReservable UnidadReservable[]
+
+  fechaCreacion     DateTime
+  usuarioCreadorId  Int
+ }
+
+ model UsuarioComplejo {
+  id          Int       @id @default(autoincrement())
+  usuarioId   Int
+  complejoId  Int
+  propietario Boolean @default(false)
+  rol         Rol
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  complejo    Complejo  @relation(fields: [complejoId], references: [id])
+
+  @@unique([usuarioId, complejoId])
  }
 
 model UnidadReservable {
   id         Int        @id @default(autoincrement())
   nombre     String
+  eliminado  Boolean    @default(false)
   tipo       String
-  estado     String
+  estado     EstadoUnidadReservable
   capacidad  Int
   complejoId Int
   complejo   Complejo   @relation(fields: [complejoId], references: [id])
   reservas   Reserva[]
+
+  fechaCreacion     DateTime
+  usuarioCreadorId  Int
 }
 
 model Reserva {
@@ -44,15 +64,22 @@ model Reserva {
   fechaInicio           DateTime
   fechaSalida           DateTime
   cantidadPersonas      Int
-  estado                String
-  plataformaProveniente String
+  estado                EstadoReserva    @default(PENDIENTE)
+  plataformaProveniente PlataformaProveniente
   aclaracion            String
-  tarifa                Decimal
-  fechaCreacion         DateTime
+  eliminado             Boolean          @default(false)
+
+  tarifaTotal           Decimal
+  estadoPago            EstadoPago       @default(PENDIENTE)
+  monedaPago            Moneda
+  pagos                 Pago[]
+
   unidadReservableId    Int
   unidadReservable      UnidadReservable @relation(fields: [unidadReservableId], references: [id])
   huespedes             ReservaHuesped[]
-  pagos                 Pago[]
+
+  fechaCreacion         DateTime
+  usuarioCreadorId      Int
 }
 
 model Huesped {
@@ -64,7 +91,11 @@ model Huesped {
   telefono    String
   descripcion String
   dni         String?
+  eliminado   Boolean @default(false)
   reservas    ReservaHuesped[]
+
+  fechaCreacion     DateTime
+  usuarioCreadorId  Int
 }
 
 model ReservaHuesped {
@@ -81,19 +112,25 @@ model Pago {
   tipoPago     TipoPago
   monto        Decimal
   fecha        DateTime
+  eliminado    Boolean       @default(false)
   reservaId    Int
   reserva      Reserva       @relation(fields: [reservaId], references: [id])
   comprobantes Comprobante[]
+
+  fechaCreacion         DateTime
+  usuarioCreadorId      Int
 }
 
 model Comprobante {
-  id        Int      @id @default(autoincrement())
-  tipoPago  TipoPago
-  archivo   String
-  monto     Decimal
-  moneda    Moneda
-  pagoId    Int
-  pago      Pago     @relation(fields: [pagoId], references: [id])
+  id                Int      @id @default(autoincrement())
+  tipoPago          TipoPago
+  eliminado         Boolean  @default(false)
+
+  pagoId            Int
+  pago              Pago     @relation(fields: [pagoId], references: [id])
+
+  fechaCreacion     DateTime
+  usuarioCreadorId  Int
 }
 
 enum TipoPago {
@@ -113,4 +150,32 @@ enum Moneda {
 enum Rol {
   ADMIN
   VIEW
+}
+
+enum EstadoUnidadReservable {
+  DISPONIBLE
+  OCUPADO
+  INHABILITADO
+}
+
+enum EstadoReserva {
+  PENDIENTE
+  CONFIRMADA
+  COMPLETADA
+  CANCELADA
+}
+
+enum PlataformaProveniente {
+  BOOKING
+  PAGINA_WEB
+  AIRBNB
+  REFERIDO
+  CONOCIDO
+  OTRO
+}
+
+enum EstadoPago {
+  PENDIENTE
+  PARCIAL
+  COMPLETADO
 }
