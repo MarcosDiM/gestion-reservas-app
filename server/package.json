@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "docker compose -f ../docker-compose.yml up -d --wait && tsx watch src/server.ts",
+    "dev": "\"%LOCALAPPDATA%\\Programs\\DockerDesktop\\resources\\bin\\docker.exe\" compose -f ../docker-compose.yml up -d --wait && prisma migrate deploy && tsx watch src/server.ts",
     "generate": "prisma generate",
     "build": "tsc",
     "start": "node dist/server.js",
@@ -17,14 +17,18 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.9.1",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.2.0",
     "prisma": "^7.9.1",
     "prisma-dbml-generator": "^0.12.0",

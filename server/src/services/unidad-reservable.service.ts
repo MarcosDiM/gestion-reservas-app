@@ -9,9 +9,9 @@ export class UnidadReservableService {
         });
     }
 
-    async obtenerUnidadReservablePorId(id: number) {
+    async obtenerUnidadReservablePorId(unidadId: number) {
         return await prisma.unidadReservable.findFirst({
-            where: { id, eliminado: false },
+            where: { id: unidadId, eliminado: false },
             include: { complejo: true, reservas: true },
         });
     }

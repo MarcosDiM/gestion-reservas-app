@@ -1,5 +1,6 @@
 import prisma from "../config/prisma.js";
 import type { Prisma } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 export class UsuarioService {
     async obtenerUsuarios() {
@@ -11,7 +12,12 @@ export class UsuarioService {
     }
 
     async crearUsuario(data: Prisma.UsuarioCreateInput) {
-        return await prisma.usuario.create({ data });
+        return await prisma.usuario.create({
+            data: {
+                ...data,
+                contrasena: await bcrypt.hash(data.contrasena, 12),
+            },
+        });
     }
 
     async actualizarUsuario(id: number, data: Prisma.UsuarioUpdateInput) {

@@ -8,6 +8,8 @@ export interface HuespedInput {
     telefono: string;
     descripcion: string;
     dni?: string | null;
+    fechaCreacion: Date;
+    usuarioCreadorId: number;
 }
 
 export class HuespedService {
