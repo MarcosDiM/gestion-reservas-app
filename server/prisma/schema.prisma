@@ -37,6 +37,7 @@ model Complejo {
   usuarioId   Int
   complejoId  Int
   propietario Boolean @default(false)
+  activo      Boolean @default(true)
   rol         Rol
   usuario     Usuario   @relation(fields: [usuarioId], references: [id])
   complejo    Complejo  @relation(fields: [complejoId], references: [id])
