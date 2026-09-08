@@ -12,13 +12,23 @@ export class AccionNoAdmitidaError extends Error {
     }
 }
 
+export class UsuarioNoPerteneceAlComplejoError extends Error {
+    readonly statusCode = 404;
+    readonly code = "USUARIO_NO_PERTENECE_AL_COMPLEJO";
+
+    constructor() {
+        super("El usuario no pertenece a este complejo");
+        this.name = "UsuarioNoPerteneceAlComplejoError";
+    }
+}
+
 export class ComplejoService {
     async obtenerComplejosporUsuario(userId: number) {
         return await prisma.complejo.findMany({
             where: {
                 eliminado: false,
                 usuarios: {
-                    some: { usuarioId: userId },
+                    some: { usuarioId: userId, activo: true },
                 },
             },
         });
@@ -29,7 +39,7 @@ export class ComplejoService {
             where: { 
                 id: complejoId, eliminado: false,
             usuarios: {
-                    some: { usuarioId: userId },
+                    some: { usuarioId: userId, activo: true },
                 }
             },
             include: { unidadReservable: true },
@@ -66,13 +76,41 @@ export class ComplejoService {
         });
     }
 
+    async inhabilitarUsuario(complejoId: number, usuarioId: number, userId: number) {
+        await this.validarPermisoDeModificacion(complejoId, userId);
+        return await this.cambiarEstadoUsuario(complejoId, usuarioId, false);
+    }
+
+    async habilitarUsuario(complejoId: number, usuarioId: number, userId: number) {
+        await this.validarPermisoDeModificacion(complejoId, userId);
+        return await this.cambiarEstadoUsuario(complejoId, usuarioId, true);
+    }
+
+    private async cambiarEstadoUsuario(complejoId: number, usuarioId: number, activo: boolean) {
+        const relacion = await prisma.usuarioComplejo.findUnique({
+            where: {
+                usuarioId_complejoId: { usuarioId, complejoId },
+            },
+            select: { id: true },
+        });
+
+        if (!relacion) {
+            throw new UsuarioNoPerteneceAlComplejoError();
+        }
+
+        return await prisma.usuarioComplejo.update({
+            where: { id: relacion.id },
+            data: { activo },
+        });
+    }
+
     private async validarPermisoDeModificacion(complejoId: number, userId: number) {
         const complejoAutorizado = await prisma.complejo.findFirst({
             where: {
                 id: complejoId,
                 eliminado: false,
                 usuarios: {
-                    some: { usuarioId: userId, rol: Rol.ADMIN },
+                    some: { usuarioId: userId, rol: Rol.ADMIN, activo: true },
                 },
             },
             select: { id: true },
