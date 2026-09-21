@@ -46,10 +46,12 @@ export class ComplejoService {
         });
     }
 
-    async crearComplejo(data: Prisma.ComplejoCreateInput, userId: number) {
+    async crearComplejo(nombre: string, userId: number) {
         return await prisma.complejo.create({
             data: {
-                ...data,
+                nombre,
+                fechaCreacion: new Date(),
+                usuarioCreadorId: userId,
                 usuarios: {
                     create: {
                         usuario: { connect: { id: userId } },
@@ -61,10 +63,13 @@ export class ComplejoService {
         });
     }
 
-    async actualizarComplejo(complejoId: number, userId: number, data: Prisma.ComplejoUpdateInput) {
+    async actualizarComplejo(complejoId: number, userId: number, nombre: string) {
         await this.validarPermisoDeModificacion(complejoId, userId);
 
-        return await prisma.complejo.update({ where: { id: complejoId }, data });
+        return await prisma.complejo.update({
+            where: { id: complejoId },
+            data: { nombre },
+        });
     }
 
     async eliminarComplejo(complejoId: number, userId: number) {

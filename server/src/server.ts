@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import seedRoutes from "./routes/seed.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import complejoRoutes from "./routes/complejo.routes.js";
 import runSeed from "./seed.js";
 
 const app = express();
@@ -16,6 +17,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/complejos", complejoRoutes);
 app.use("/api", seedRoutes);
 
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
