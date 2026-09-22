@@ -1,6 +1,7 @@
 
-import { Rol, type Prisma } from "@prisma/client";
+import { Rol } from "@prisma/client";
 import prisma from "../config/prisma.js";
+import type { ActualizarComplejoDto, CrearComplejoDto } from "../dtos/complejo.dto.js";
 
 export class AccionNoAdmitidaError extends Error {
     readonly statusCode = 403;
@@ -9,16 +10,6 @@ export class AccionNoAdmitidaError extends Error {
     constructor() {
         super("El usuario no tiene permisos para modificar este complejo");
         this.name = "AccionNoAdmitidaError";
-    }
-}
-
-export class UsuarioNoPerteneceAlComplejoError extends Error {
-    readonly statusCode = 404;
-    readonly code = "USUARIO_NO_PERTENECE_AL_COMPLEJO";
-
-    constructor() {
-        super("El usuario no pertenece a este complejo");
-        this.name = "UsuarioNoPerteneceAlComplejoError";
     }
 }
 
@@ -46,10 +37,10 @@ export class ComplejoService {
         });
     }
 
-    async crearComplejo(nombre: string, userId: number) {
+    async crearComplejo(datos: CrearComplejoDto, userId: number) {
         return await prisma.complejo.create({
             data: {
-                nombre,
+                nombre: datos.nombre,
                 fechaCreacion: new Date(),
                 usuarioCreadorId: userId,
                 usuarios: {
@@ -63,12 +54,12 @@ export class ComplejoService {
         });
     }
 
-    async actualizarComplejo(complejoId: number, userId: number, nombre: string) {
+    async actualizarComplejo(complejoId: number, userId: number, datos: ActualizarComplejoDto) {
         await this.validarPermisoDeModificacion(complejoId, userId);
 
         return await prisma.complejo.update({
             where: { id: complejoId },
-            data: { nombre },
+            data: { nombre: datos.nombre },
         });
     }
 
@@ -78,34 +69,6 @@ export class ComplejoService {
         return await prisma.complejo.update({
             where: { id: complejoId },
             data: { eliminado: true },
-        });
-    }
-
-    async inhabilitarUsuario(complejoId: number, usuarioId: number, userId: number) {
-        await this.validarPermisoDeModificacion(complejoId, userId);
-        return await this.cambiarEstadoUsuario(complejoId, usuarioId, false);
-    }
-
-    async habilitarUsuario(complejoId: number, usuarioId: number, userId: number) {
-        await this.validarPermisoDeModificacion(complejoId, userId);
-        return await this.cambiarEstadoUsuario(complejoId, usuarioId, true);
-    }
-
-    private async cambiarEstadoUsuario(complejoId: number, usuarioId: number, activo: boolean) {
-        const relacion = await prisma.usuarioComplejo.findUnique({
-            where: {
-                usuarioId_complejoId: { usuarioId, complejoId },
-            },
-            select: { id: true },
-        });
-
-        if (!relacion) {
-            throw new UsuarioNoPerteneceAlComplejoError();
-        }
-
-        return await prisma.usuarioComplejo.update({
-            where: { id: relacion.id },
-            data: { activo },
         });
     }
 
