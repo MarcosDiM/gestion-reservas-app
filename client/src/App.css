@@ -1,0 +1,116 @@
+.page {
+	min-height: 100vh;
+	display: grid;
+	place-content: center;
+	justify-items: center;
+	gap: 1.5rem;
+	padding: 2rem;
+	text-align: center;
+}
+
+h1 {
+	margin: 0;
+}
+
+.login-button {
+	display: inline-block;
+	padding: 0.75rem 1.25rem;
+	border-radius: 0.4rem;
+	background: #2563eb;
+	color: white;
+	text-decoration: none;
+}
+
+.login-button:hover {
+	background: #1d4ed8;
+}
+
+.app-shell {
+	min-height: 100vh;
+	display: grid;
+	grid-template-columns: 16rem 1fr;
+}
+
+.app-header {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	padding: 1.5rem;
+	background: #172033;
+	color: white;
+}
+
+.brand {
+	color: white;
+	font-size: 1.1rem;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.app-header nav {
+	display: grid;
+	gap: 0.35rem;
+}
+
+.nav-link,
+.logout-link {
+	padding: 0.65rem 0.75rem;
+	border-radius: 0.35rem;
+	color: #cbd5e1;
+	text-decoration: none;
+}
+
+.nav-link:hover,
+.nav-link.active,
+.logout-link:hover {
+	background: #263653;
+	color: white;
+}
+
+.logout-link {
+	margin-top: auto;
+}
+
+.app-content {
+	padding: 3rem;
+}
+
+.placeholder-page {
+	max-width: 48rem;
+}
+
+.placeholder-page h1 {
+	margin-bottom: 0.75rem;
+}
+
+.placeholder-page p:last-child {
+	color: #526078;
+}
+
+.eyebrow {
+	margin: 0 0 0.5rem;
+	color: #2563eb;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+@media (max-width: 800px) {
+	.app-shell {
+		display: block;
+	}
+
+	.app-header {
+		gap: 1rem;
+	}
+
+	.app-header nav {
+		display: flex;
+		flex-wrap: wrap;
+	}
+
+	.app-content {
+		padding: 2rem 1.25rem;
+	}
+}
