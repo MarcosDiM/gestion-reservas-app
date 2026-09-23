@@ -1,0 +1,15 @@
+.app-shell { min-height: 100vh; display: grid; grid-template-columns: 16rem 1fr; }
+.app-header { display: flex; flex-direction: column; gap: 2rem; padding: 1.5rem; background: #172033; color: white; }
+.brand { color: white; font-size: 1.1rem; font-weight: 700; text-decoration: none; }
+.app-header nav { display: grid; gap: 0.35rem; }
+.nav-link, .logout-link { padding: 0.65rem 0.75rem; border-radius: 0.35rem; color: #cbd5e1; text-decoration: none; }
+.nav-link:hover, .nav-link.active, .logout-link:hover { background: #263653; color: white; }
+.logout-link { margin-top: auto; border: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.app-content { padding: 3rem; }
+
+@media (max-width: 800px) {
+	.app-shell { display: block; }
+	.app-header { gap: 1rem; }
+	.app-header nav { display: flex; flex-wrap: wrap; }
+	.app-content { padding: 2rem 1.25rem; }
+}

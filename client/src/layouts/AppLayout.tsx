@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import './AppLayout.css'
 
 const sections = [
     { label: 'Resumen', path: '/app/dashboard' },
@@ -12,6 +13,14 @@ const sections = [
 ]
 
 export function AppLayout() {
+    const navigate = useNavigate()
+
+    function cerrarSesion() {
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('auth_user')
+        navigate('/login')
+    }
+
     return (
         <div className="app-shell">
             <header className="app-header">
@@ -29,9 +38,9 @@ export function AppLayout() {
                         </NavLink>
                     ))}
                 </nav>
-                <NavLink className="logout-link" to="/">
+                <button className="logout-link" type="button" onClick={cerrarSesion}>
                     Cerrar sesión
-                </NavLink>
+                </button>
             </header>
             <main className="app-content">
                 <Outlet />

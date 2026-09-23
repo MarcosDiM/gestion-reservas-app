@@ -1,0 +1,11 @@
+.placeholder-page {
+	max-width: 48rem;
+}
+
+.placeholder-page h1 {
+	margin-bottom: 0.75rem;
+}
+
+.placeholder-page p:last-child {
+	color: #526078;
+}

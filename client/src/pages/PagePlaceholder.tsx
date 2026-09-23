@@ -1,3 +1,5 @@
+import './PagePlaceholder.css'
+
 interface PagePlaceholderProps {
     title: string
     description: string
