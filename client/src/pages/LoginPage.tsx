@@ -1,8 +1,8 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { apiClient } from '../api/client'
-import type { ApiErrorResponse, LoginResponse } from '../types/api'
+import { iniciarSesion as iniciarSesionApi } from '../api/auth'
+import type { ApiErrorResponse } from '../types/api'
 import './LoginPage.css'
 
 export function LoginPage() {
@@ -19,7 +19,7 @@ export function LoginPage() {
         setCargando(true)
 
         try {
-            const { data } = await apiClient.post<LoginResponse>('/auth/login', {
+            const data = await iniciarSesionApi({
                 usuario,
                 contrasena,
             })

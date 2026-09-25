@@ -1,15 +1,88 @@
-.app-shell { min-height: 100vh; display: grid; grid-template-columns: 16rem 1fr; }
-.app-header { display: flex; flex-direction: column; gap: 2rem; padding: 1.5rem; background: #172033; color: white; }
-.brand { color: white; font-size: 1.1rem; font-weight: 700; text-decoration: none; }
-.app-header nav { display: grid; gap: 0.35rem; }
-.nav-link, .logout-link { padding: 0.65rem 0.75rem; border-radius: 0.35rem; color: #cbd5e1; text-decoration: none; }
-.nav-link:hover, .nav-link.active, .logout-link:hover { background: #263653; color: white; }
-.logout-link { margin-top: auto; border: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }
-.app-content { padding: 3rem; }
+.app-shell {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: #f5f7fa;
+}
 
-@media (max-width: 800px) {
-	.app-shell { display: block; }
-	.app-header { gap: 1rem; }
-	.app-header nav { display: flex; flex-wrap: wrap; }
-	.app-content { padding: 2rem 1.25rem; }
+.app-header {
+	display: flex;
+	justify-content: flex-end;
+	min-height: 3.45rem;
+	padding: 0 1.5rem;
+	background: #10192d;
+	color: white;
+	box-shadow: 0 1px 0 rgba(148, 163, 184, 0.35);
+}
+
+.logout-link {
+	padding: 0.45rem 0.55rem;
+	border-radius: 0.3rem;
+	color: #aebbd0;
+	font-size: 0.64rem;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.logout-link:hover {
+	background: #253451;
+	color: white;
+}
+
+.user-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+}
+
+.user-summary {
+	display: grid;
+	text-align: right;
+}
+
+.user-summary strong {
+	font-size: 0.65rem;
+}
+
+.user-summary span {
+	margin-top: 0.1rem;
+	color: #8c9ab0;
+	font-size: 0.58rem;
+}
+
+.logout-link {
+	border: 0;
+	background: transparent;
+	font: inherit;
+	cursor: pointer;
+}
+
+.app-content {
+	flex: 1;
+	min-height: calc(100vh - 3.45rem);
+	padding: clamp(2rem, 5vw, 3rem) 1.25rem;
+}
+
+.app-footer {
+	padding: 1.35rem 1rem;
+	border-top: 1px solid #e2e8f0;
+	color: #68758a;
+	font-size: 0.6rem;
+	text-align: center;
+}
+
+@media (max-width: 850px) {
+	.app-content {
+		min-height: calc(100vh - 6.5rem);
+	}
+}
+
+@media (max-width: 480px) {
+	.user-summary {
+		display: none;
+	}
+
+	.app-header {
+		padding-inline: 1rem;
+	}
 }

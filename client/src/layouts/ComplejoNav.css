@@ -1,0 +1,163 @@
+.complejo-shell {
+	min-height: 100vh;
+	display: flex;
+	background: #f5f7fa;
+}
+
+.complejo-sidebar {
+	position: fixed;
+	inset: 0 auto 0 0;
+	display: flex;
+	width: 15rem;
+	flex-direction: column;
+	padding: 1.6rem 0.8rem 1.4rem;
+	background: #10192d;
+	color: #f8fafc;
+}
+
+.complejo-brand {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	padding: 0 0.45rem;
+}
+
+.complejo-brand strong {
+	font-size: 0.94rem;
+	letter-spacing: -0.02em;
+}
+
+.complejo-brand-icon {
+	display: grid;
+	width: 1.85rem;
+	height: 1.85rem;
+	place-items: center;
+	border-radius: 0.45rem;
+	background: #3983f6;
+	color: white;
+}
+
+.complejo-menu {
+	margin-top: 2.55rem;
+}
+
+.complejo-menu-label {
+	margin: 0 0 0.55rem 0.95rem;
+	color: #65728a;
+	font-size: 0.63rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.complejo-menu-label-users {
+	margin-top: 1.45rem;
+}
+
+.complejo-menu-link {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	min-height: 2.25rem;
+	padding: 0 0.9rem;
+	border-radius: 0.55rem;
+	color: #f1f5f9;
+	font-size: 0.78rem;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.complejo-menu-link svg {
+	flex: 0 0 auto;
+	color: #e2e8f0;
+}
+
+.complejo-menu-link.active {
+	background: #202d43;
+}
+
+.complejo-menu-link-muted {
+	color: #91a0b7;
+}
+
+.complejo-menu-link-muted svg {
+	color: #91a0b7;
+}
+
+.complejo-menu-link:hover {
+	background: #1a2740;
+	color: #f8fafc;
+}
+
+.complejo-user-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-top: auto;
+	padding: 0.75rem;
+	border-radius: 0.55rem;
+	background: #202d43;
+}
+
+.complejo-user-card div {
+	display: grid;
+	min-width: 0;
+}
+
+.complejo-user-card strong,
+.complejo-user-card span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.complejo-user-card strong {
+	font-size: 0.75rem;
+}
+
+.complejo-user-card span {
+	margin-top: 0.15rem;
+	color: #91a0b7;
+	font-size: 0.68rem;
+}
+
+.complejo-user-card button {
+	display: grid;
+	flex: 0 0 auto;
+	place-items: center;
+	padding: 0.25rem;
+	border: 0;
+	background: transparent;
+	color: #91a0b7;
+	cursor: pointer;
+}
+
+.complejo-user-card button:hover {
+	color: white;
+}
+
+.complejo-content {
+	width: calc(100% - 15rem);
+	min-height: 100vh;
+	margin-left: 15rem;
+	padding: clamp(2rem, 5vw, 3rem) 1.25rem;
+}
+
+@media (max-width: 700px) {
+	.complejo-sidebar {
+		position: static;
+		width: 100%;
+		min-height: 100vh;
+	}
+
+	.complejo-shell {
+		display: block;
+	}
+
+	.complejo-content {
+		width: 100%;
+		min-height: auto;
+		margin-left: 0;
+	}
+}

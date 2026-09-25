@@ -1,5 +1,8 @@
 import { PagePlaceholder } from './PagePlaceholder'
+import { useParams } from 'react-router-dom'
 
 export function UsuariosPage() {
-    return <PagePlaceholder title="Usuarios" description="Administración de usuarios y permisos por complejo." />
+    const { complejoId } = useParams()
+
+    return <PagePlaceholder title="Usuarios" description={`Administración de usuarios y permisos del complejo #${complejoId}.`} />
 }
