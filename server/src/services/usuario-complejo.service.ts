@@ -1,6 +1,5 @@
-import { Rol } from "@prisma/client";
 import prisma from "../config/prisma.js";
-import { AccionNoAdmitidaError } from "./complejo.service.js";
+import { verificarPermisoModificacionComplejo } from "../middlewares/complejo.middleware.js";
 
 export class UsuarioNoPerteneceAlComplejoError extends Error {
     readonly statusCode = 404;
@@ -14,12 +13,12 @@ export class UsuarioNoPerteneceAlComplejoError extends Error {
 
 export class UsuarioComplejoService {
     async inhabilitarUsuario(complejoId: number, usuarioId: number, userId: number) {
-        await this.validarPermisoDeModificacion(complejoId, userId);
+        await verificarPermisoModificacionComplejo(complejoId, userId);
         return await this.cambiarEstadoUsuario(complejoId, usuarioId, false);
     }
 
     async habilitarUsuario(complejoId: number, usuarioId: number, userId: number) {
-        await this.validarPermisoDeModificacion(complejoId, userId);
+        await verificarPermisoModificacionComplejo(complejoId, userId);
         return await this.cambiarEstadoUsuario(complejoId, usuarioId, true);
     }
 
@@ -39,22 +38,5 @@ export class UsuarioComplejoService {
             where: { id: relacion.id },
             data: { activo },
         });
-    }
-
-    private async validarPermisoDeModificacion(complejoId: number, userId: number) {
-        const complejoAutorizado = await prisma.complejo.findFirst({
-            where: {
-                id: complejoId,
-                eliminado: false,
-                usuarios: {
-                    some: { usuarioId: userId, rol: Rol.ADMIN, activo: true },
-                },
-            },
-            select: { id: true },
-        });
-
-        if (!complejoAutorizado) {
-            throw new AccionNoAdmitidaError();
-        }
     }
 }

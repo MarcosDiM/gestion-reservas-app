@@ -1,28 +1,32 @@
 
 import { Rol } from "@prisma/client";
 import prisma from "../config/prisma.js";
-import type { ActualizarComplejoDto, CrearComplejoDto } from "../dtos/complejo.dto.js";
-
-export class AccionNoAdmitidaError extends Error {
-    readonly statusCode = 403;
-    readonly code = "ACCION_NO_ADMITIDA";
-
-    constructor() {
-        super("El usuario no tiene permisos para modificar este complejo");
-        this.name = "AccionNoAdmitidaError";
-    }
-}
+import type { ActualizarComplejoDto, CrearComplejoDto, ObtenerListaComplejosDto } from "../dtos/complejo.dto.js";
+import { verificarPermisoModificacionComplejo } from "../middlewares/complejo.middleware.js";
 
 export class ComplejoService {
-    async obtenerComplejosporUsuario(userId: number) {
-        return await prisma.complejo.findMany({
+    async obtenerComplejosporUsuario(userId: number): Promise<ObtenerListaComplejosDto[]> {
+        const complejos = await prisma.complejo.findMany({
             where: {
                 eliminado: false,
                 usuarios: {
                     some: { usuarioId: userId, activo: true },
                 },
             },
+            select: {
+                nombre: true,
+                _count: {
+                    select: {
+                        unidadReservable: { where: { eliminado: false } },
+                    },
+                },
+            },
         });
+
+        return complejos.map(({ nombre, _count }) => ({
+            nombre,
+            unidades: _count.unidadReservable,
+        }));
     }
 
     async obtenerComplejoPorId(complejoId: number, userId: number) {
@@ -55,7 +59,7 @@ export class ComplejoService {
     }
 
     async actualizarComplejo(complejoId: number, userId: number, datos: ActualizarComplejoDto) {
-        await this.validarPermisoDeModificacion(complejoId, userId);
+        await verificarPermisoModificacionComplejo(complejoId, userId);
 
         return await prisma.complejo.update({
             where: { id: complejoId },
@@ -64,28 +68,11 @@ export class ComplejoService {
     }
 
     async eliminarComplejo(complejoId: number, userId: number) {
-        await this.validarPermisoDeModificacion(complejoId, userId);
+        await verificarPermisoModificacionComplejo(complejoId, userId);
 
         return await prisma.complejo.update({
             where: { id: complejoId },
             data: { eliminado: true },
         });
-    }
-
-    private async validarPermisoDeModificacion(complejoId: number, userId: number) {
-        const complejoAutorizado = await prisma.complejo.findFirst({
-            where: {
-                id: complejoId,
-                eliminado: false,
-                usuarios: {
-                    some: { usuarioId: userId, rol: Rol.ADMIN, activo: true },
-                },
-            },
-            select: { id: true },
-        });
-
-        if (!complejoAutorizado) {
-            throw new AccionNoAdmitidaError();
-        }
     }
 } 

@@ -1,15 +1,7 @@
-import { EstadoUnidadReservable, Rol, type Prisma } from "@prisma/client";
+import { EstadoUnidadReservable, type Prisma } from "@prisma/client";
 import prisma from "../config/prisma.js";
-
-export class AccesoComplejoNoAutorizadoError extends Error {
-    readonly statusCode = 403;
-    readonly code = "ACCESO_COMPLEJO_NO_AUTORIZADO";
-
-    constructor() {
-        super("El usuario no tiene acceso a este complejo");
-        this.name = "AccesoComplejoNoAutorizadoError";
-    }
-}
+import type { ActualizarUnidadReservableDto, CrearUnidadReservableDto, ObtenerUnidadesPorListaDto, ObtenerUnidadPorIdDto } from "../dtos/unidad-reservable.dto.js";
+import { verificarAccesoComplejo, verificarPermisoModificacionComplejo } from "../middlewares/complejo.middleware.js";
 
 export class UnidadReservableNoEncontradaError extends Error {
     readonly statusCode = 404;
@@ -22,40 +14,103 @@ export class UnidadReservableNoEncontradaError extends Error {
 }
 
 export class UnidadReservableService {
-    async obtenerUnidadesReservables(complejoId: number, userId: number) {
-        await this.validarAccesoAlComplejo(complejoId, userId);
+    async obtenerUnidadesReservables(complejoId: number, userId: number):Promise<ObtenerUnidadesPorListaDto[]> {
+        await verificarAccesoComplejo(complejoId, userId);
 
-        return await prisma.unidadReservable.findMany({
+        const unidades = await prisma.unidadReservable.findMany({
             where: { complejoId, eliminado: false },
-            include: { complejo: true, reservas: true },
+            include: {
+                complejo: true,
+                reservas: true,
+            },
         });
+        return unidades;
     }
 
-    async obtenerUnidadReservablePorId(unidadId: number, userId: number) {
-        const unidad = await this.obtenerUnidadConComplejo(unidadId);
-        await this.validarAccesoAlComplejo(unidad.complejoId, userId);
+    async obtenerUnidadReservablePorId(unidadId: number, userId: number, complejoId: number): Promise<ObtenerUnidadPorIdDto> {
+        await verificarAccesoComplejo(complejoId, userId);
 
-        return await prisma.unidadReservable.findFirst({
-            where: { id: unidadId, eliminado: false },
-            include: { complejo: true, reservas: true },
+        const unidad = await prisma.unidadReservable.findFirst({
+            where: { id: unidadId, complejoId, eliminado: false },
+            select: {
+                id: true,
+                nombre: true,
+                tipo: true,
+                estado: true,
+                capacidad: true,
+                reservas: {
+                    where: { eliminado: false },
+                    select: {
+                        id: true,
+                        fechaInicio: true,
+                        fechaSalida: true,
+                        usuarioCreadorId: true,
+                    },
+                },
+            },
         });
+
+        if (!unidad) {
+            throw new UnidadReservableNoEncontradaError();
+        }
+
+        return {
+            ...unidad,
+            reservas: unidad.reservas.map((reserva) => ({
+                id: reserva.id,
+                fechaInicio: reserva.fechaInicio.toISOString(),
+                fechaFin: reserva.fechaSalida.toISOString(),
+                usuarioId: reserva.usuarioCreadorId,
+            })),
+        };
     }
 
-    async crearUnidadReservable(data: Prisma.UnidadReservableUncheckedCreateInput, userId: number) {
-        await this.validarPermisoDeModificacion(data.complejoId, userId);
-        return await prisma.unidadReservable.create({ data });
+    async crearUnidadReservable(data: CrearUnidadReservableDto, userId: number) {
+        await verificarPermisoModificacionComplejo(data.complejoId, userId);
+        return await prisma.unidadReservable.create({
+            data: {
+                nombre: data.nombre,
+                eliminado: false,
+                tipo: data.tipo,
+                estado: EstadoUnidadReservable.DISPONIBLE,
+                capacidad: data.capacidad,
+                complejoId: data.complejoId,
+                reservas: { create: [] },
+                fechaCreacion: new Date(),
+                usuarioCreadorId: userId,
+            } });
     }
 
-    async actualizarUnidadReservable(id: number, data: Prisma.UnidadReservableUncheckedUpdateInput, userId: number) {
-        const unidad = await this.obtenerUnidadConComplejo(id);
-        await this.validarPermisoDeModificacion(unidad.complejoId, userId);
+    async actualizarUnidadReservable(id: number, data: ActualizarUnidadReservableDto, userId: number, complejoId: number) {
+        await verificarPermisoModificacionComplejo(complejoId, userId);
 
-        return await prisma.unidadReservable.update({ where: { id }, data });
+        const resultado = await prisma.unidadReservable.updateMany({
+            where: { id, complejoId, eliminado: false },
+            data: {
+                nombre: data.nombre,
+                tipo: data.tipo,
+                capacidad: data.capacidad,
+            },
+        });
+
+        if (resultado.count === 0) {
+            throw new UnidadReservableNoEncontradaError();
+        }
+
+        const unidad = await prisma.unidadReservable.findFirst({
+            where: { id, complejoId, eliminado: false },
+        });
+
+        if (!unidad) {
+            throw new UnidadReservableNoEncontradaError();
+        }
+
+        return unidad;
     }
 
     async eliminarUnidadReservable(id: number, userId: number) {
         const unidad = await this.obtenerUnidadConComplejo(id);
-        await this.validarPermisoDeModificacion(unidad.complejoId, userId);
+        await verificarPermisoModificacionComplejo(unidad.complejoId, userId);
 
         return await prisma.unidadReservable.update({ where: { id }, data: { eliminado: true } });
     }
@@ -74,7 +129,7 @@ export class UnidadReservableService {
         estado: EstadoUnidadReservable,
     ) {
         const unidad = await this.obtenerUnidadConComplejo(id);
-        await this.validarPermisoDeModificacion(unidad.complejoId, userId);
+        await verificarPermisoModificacionComplejo(unidad.complejoId, userId);
 
         return await prisma.unidadReservable.update({
             where: { id },
@@ -93,39 +148,5 @@ export class UnidadReservableService {
         }
 
         return unidad;
-    }
-
-    private async validarAccesoAlComplejo(complejoId: number, userId: number) {
-        const complejoAutorizado = await prisma.complejo.findFirst({
-            where: {
-                id: complejoId,
-                eliminado: false,
-                usuarios: {
-                    some: { usuarioId: userId, activo: true },
-                },
-            },
-            select: { id: true },
-        });
-
-        if (!complejoAutorizado) {
-            throw new AccesoComplejoNoAutorizadoError();
-        }
-    }
-
-    private async validarPermisoDeModificacion(complejoId: number, userId: number) {
-        const complejoAutorizado = await prisma.complejo.findFirst({
-            where: {
-                id: complejoId,
-                eliminado: false,
-                usuarios: {
-                    some: { usuarioId: userId, rol: Rol.ADMIN, activo: true },
-                },
-            },
-            select: { id: true },
-        });
-
-        if (!complejoAutorizado) {
-            throw new AccesoComplejoNoAutorizadoError();
-        }
     }
 }
